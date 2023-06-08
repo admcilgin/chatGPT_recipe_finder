@@ -58,12 +58,21 @@
         android:layout_marginTop="16dp" />
 
 
+    <TextView
+        android:id="@+id/tv_no_results"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Results"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_Search" />
     <include
         android:id="@+id/recipe_item_card_layout"
         layout="@layout/recipe_item_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/btn_Search"
         tools:layout_editor_absoluteX="16dp" />
 

@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -14,11 +13,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.acilgin.chatgpt_recipe_finder.R
 import com.acilgin.chatgpt_recipe_finder.data.model.Content
 import com.acilgin.chatgpt_recipe_finder.databinding.FragmentHomeBinding
 import com.acilgin.chatgpt_recipe_finder.ui.adapter.StepsRecyclerViewAdapter
 import com.bumptech.glide.Glide
+import com.facebook.shimmer.Shimmer
+import com.facebook.shimmer.ShimmerDrawable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -56,7 +56,7 @@ class HomeFragment : Fragment() {
         setupListeners()
     }
 
-    private fun setupUi(){
+    private fun setupUi() {
         val languageSpinner = _binding.languageSpinner
         val typeSpinner = _binding.typeSpinner
 
@@ -64,8 +64,10 @@ class HomeFragment : Fragment() {
 
         val types = arrayOf("Appetizers", "Main Courses", "Desserts", "Salads", "Soups")
 
-        val languageAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, languages)
-        val typeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
+        val languageAdapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, languages)
+        val typeAdapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
 
         languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -74,18 +76,19 @@ class HomeFragment : Fragment() {
         typeSpinner.adapter = typeAdapter
 
         // add hint to search bar
-        _binding.searchView.queryHint= "ingredients separated by comma."
+        _binding.searchView.queryHint = "ingredients separated by comma."
 
-        testData()
+        //testData()
     }
 
-    private fun testData(){
+    private fun testData() {
 
         val testContent = Content(
             name = "Apple and Meat Crostini",
             language = "en",
             imagePrompt = "Crisp crostini with juicy apple and savory meat",
             type = "appetizers",
+            calories = "200",
             ingredients = arrayListOf(
                 "Baguette slices",
                 "Thinly sliced apples",
@@ -106,20 +109,28 @@ class HomeFragment : Fragment() {
         testContent.ingredients.let {
             _binding.recipeItemCardLayout.ingredientsLabel.text = it.joinToString(",")
         }
-        _binding.recipeItemCardLayout.stepsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-         val stepsAdapter = StepsRecyclerViewAdapter(testContent.steps)
+        _binding.recipeItemCardLayout.stepsRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext())
+        val stepsAdapter = StepsRecyclerViewAdapter(testContent.steps)
         _binding.recipeItemCardLayout.stepsRecyclerView.adapter = stepsAdapter
 
         _binding.recipeItemCardLayout.recipeImage.visibility = View.VISIBLE
-        Glide.with(requireContext()).load(Uri.parse("https://oaidalleapiprodscus.blob.core.windows.net/private/org-9Q06RcLmoLVL4aHoWVjUyuVA/user-dB8mCuNvAfZprtT084LMzn1T/img-R2CB4D1hmdRC7XjEViZXTYr4.png?st=2023-05-18T06%3A04%3A39Z&se=2023-05-18T08%3A04%3A39Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-05-17T20%3A33%3A25Z&ske=2023-05-18T20%3A33%3A25Z&sks=b&skv=2021-08-06&sig=gnOGePHphpO49TdhYM3CKlMeVZD7YaxPMsqzCnImXIw%3D")).into(_binding.recipeItemCardLayout.recipeImage)
+        Glide.with(requireContext())
+            .load(Uri.parse("https://oaidalleapiprodscus.blob.core.windows.net/private/org-9Q06RcLmoLVL4aHoWVjUyuVA/user-dB8mCuNvAfZprtT084LMzn1T/img-R2CB4D1hmdRC7XjEViZXTYr4.png?st=2023-05-18T06%3A04%3A39Z&se=2023-05-18T08%3A04%3A39Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-05-17T20%3A33%3A25Z&ske=2023-05-18T20%3A33%3A25Z&sks=b&skv=2021-08-06&sig=gnOGePHphpO49TdhYM3CKlMeVZD7YaxPMsqzCnImXIw%3D"))
+            .into(_binding.recipeItemCardLayout.recipeImage)
     }
-    private fun setupListeners(){
+
+    private fun setupListeners() {
         _binding.btnSearch.setOnClickListener {
             val language = _binding.languageSpinner.selectedItem.toString()
             val type = _binding.typeSpinner.selectedItem.toString()
             val ingredients = _binding.searchView.query.toString()
             // log the values
-            Toast.makeText(requireContext(), "Language: $language, Type: $type, Ingredients: $ingredients", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Language: $language, Type: $type, Ingredients: $ingredients",
+                Toast.LENGTH_SHORT
+            ).show()
             progressbar(true)
             viewModel.generateRecipeFromChat(
                 type = type,
@@ -139,11 +150,16 @@ class HomeFragment : Fragment() {
 
     private fun handleStateChange(state: ContentState<Content?>) {
         when (state) {
-            is ContentState.Initial -> Unit
+            is ContentState.Initial -> handleInitial()
             is ContentState.Loading -> handleLoding(state.isLoading)
             is ContentState.Success -> handleSuccess(state.data)
             is ContentState.Error -> handleError(state.message)
         }
+    }
+
+    private fun handleInitial() {
+        _binding.recipeItemCardLayout.root.visibility = View.GONE
+        progressbar(false)
     }
     private fun handleImageStateChange(state: ImageState<String?>) {
         when (state) {
@@ -155,7 +171,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun handleLoding(isLoading: Boolean) {
-       progressbar(isLoading)
+        _binding.recipeItemCardLayout.root.visibility = View.GONE
+        _binding.tvNoResults.visibility = View.GONE
+        progressbar(isLoading)
     }
 
     private fun handleError(message: String) {
@@ -174,16 +192,22 @@ class HomeFragment : Fragment() {
 
     private fun handleSuccess(data: Content?) {
         _binding.recipeItemCardLayout.root.visibility = View.VISIBLE
+        _binding.tvNoResults.visibility = View.GONE
         // take the data and set it in included recipe layout
         _binding.recipeItemCardLayout.recipeName.text = data?.name
-        _binding.recipeItemCardLayout.recipeType.text = data?.type
+        _binding.recipeItemCardLayout.recipeType.text = "Type: ${data?.type}"
+        _binding.recipeItemCardLayout.tvCalories.text = "Cal: ${data?.calories}"
+        _binding.recipeItemCardLayout.tvPrepTime.text = "Prep: ${data?.time}"
 
         // create image :
-        viewModel.generateRecipeImage(data?.imagePrompt ?: "a meal")
+        viewModel.generateRecipeImage(
+            data?.imagePrompt ?: "a meal with ${data?.ingredients?.joinToString(",").toString()}"
+        )
         data?.ingredients?.let {
             _binding.recipeItemCardLayout.ingredientsLabel.text = it.joinToString(",")
         }
-        _binding.recipeItemCardLayout.stepsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        _binding.recipeItemCardLayout.stepsRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext())
 
         data?.steps?.let {
             _binding.recipeItemCardLayout.stepsRecyclerView.adapter = StepsRecyclerViewAdapter(it)
@@ -191,12 +215,27 @@ class HomeFragment : Fragment() {
         }
 
     }
+
     private fun handleImageSuccess(url: String?) {
+        val shimmer = Shimmer.AlphaHighlightBuilder()// The attributes for a ShimmerDrawable is set by this builder
+            .setDuration(1800) // how long the shimmering animation takes to do one full sweep
+            .setBaseAlpha(0.7f) //the alpha of the underlying children
+            .setHighlightAlpha(0.6f) // the shimmer alpha amount
+            .setDirection(Shimmer.Direction.LEFT_TO_RIGHT)
+            .setAutoStart(true)
+            .build()
+
+// This is the placeholder for the imageView
+        val shimmerDrawable = ShimmerDrawable().apply {
+            setShimmer(shimmer)
+        }
         _binding.recipeItemCardLayout.root.visibility = View.VISIBLE
         // take the url string and load image with glide
         url?.let {
             _binding.recipeItemCardLayout.recipeImage.visibility = View.VISIBLE
-            Glide.with(requireContext()).load(Uri.parse(it)).into(_binding.recipeItemCardLayout.recipeImage)
+            Glide.with(requireContext()).load(Uri.parse(it))
+                .placeholder(shimmerDrawable)
+                .into(_binding.recipeItemCardLayout.recipeImage)
         }
 
     }

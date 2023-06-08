@@ -48,6 +48,8 @@ data class Content (
     @SerializedName("language"     ) var language    : String?           = null,
     @SerializedName("image_prompt" ) var imagePrompt : String?           = null,
     @SerializedName("type"         ) var type        : String?           = null,
+    @SerializedName("calories"     ) var calories    : String?           = null,
+    @SerializedName("prepare_time" ) var time        : String?           = null,
     @SerializedName("ingredients"  ) var ingredients : ArrayList<String> = arrayListOf(),
     @SerializedName("steps"        ) var steps       : ArrayList<String> = arrayListOf()
 

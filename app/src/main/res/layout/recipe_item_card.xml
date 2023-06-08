@@ -22,6 +22,7 @@
        <ImageView
            android:id="@+id/recipe_image"
            android:layout_width="match_parent"
+           android:scaleType="fitXY"
            android:layout_height="200dp" />
 
         <TextView
@@ -39,6 +40,20 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:text="recipe type"
+            android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/tv_prep_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="recipe type"
+            android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/tv_calories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Cal:"
             android:layout_marginBottom="8dp"/>
 
         <TextView

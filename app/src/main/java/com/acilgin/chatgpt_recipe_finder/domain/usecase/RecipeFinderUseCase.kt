@@ -2,15 +2,11 @@ package com.acilgin.chatgpt_recipe_finder.domain.usecase
 
 
 import com.acilgin.chatgpt_recipe_finder.data.model.ChatRequestBody
-import com.acilgin.chatgpt_recipe_finder.data.model.CompletionRequestBody
-import com.acilgin.chatgpt_recipe_finder.data.model.Message
 import com.acilgin.chatgpt_recipe_finder.data.model.Messages
 import com.acilgin.chatgpt_recipe_finder.domain.repository.ChatRepository
-import com.acilgin.chatgpt_recipe_finder.domain.repository.CompletionRepository
-import org.intellij.lang.annotations.Language
 import javax.inject.Inject
 
-class  ChatUseCase @Inject constructor(
+class  RecipeFinderUseCase @Inject constructor(
     private val completionRepository: ChatRepository
 ) {
      operator fun invoke(ingredients: String,type: String,language: String)  =
@@ -24,6 +20,7 @@ class  ChatUseCase @Inject constructor(
                             "Ensure that the ingredients are real, edible, and commonly used in cooking." +
                             " Return the recipe, along with the list of ingredients and instructions." +
                             " Furthermore, generate a brief 30-character image prompt describing the recipe. " +
+                            " And also put estimated calories and prepare time, type of dish, and the language of the recipe in the response. " +
                             "Return all the information in JSON format. " +
                             "The response should be in the language specified by the user. " +
                             "If you encounter an error, or cannot find a recipe with the provided ingredients, return a random recipe instead. " +
@@ -35,6 +32,8 @@ class  ChatUseCase @Inject constructor(
                             "        'language': 'en',\n" +
                             "        'image_prompt': 'A cake with strawberries on top.',\n" +
                             "        'type': 'Dessert, Cake',\n" +
+                            "        'calories': '490',\n" +
+                            "        'prepare_time': '1 hour',\n" +
                             "        'ingredients': [\n" +
                             "            '2 cups of all-purpose flour',\n" +
                             "            '2 large eggs'\n" +

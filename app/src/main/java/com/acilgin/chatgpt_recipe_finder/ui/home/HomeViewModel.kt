@@ -6,7 +6,7 @@ import com.acilgin.chatgpt_recipe_finder.data.model.ChatResponseModel
 import com.acilgin.chatgpt_recipe_finder.data.model.CompletionResponse
 import com.acilgin.chatgpt_recipe_finder.data.model.Content
 import com.acilgin.chatgpt_recipe_finder.data.model.convertJsonToContent
-import com.acilgin.chatgpt_recipe_finder.domain.usecase.ChatUseCase
+import com.acilgin.chatgpt_recipe_finder.domain.usecase.RecipeFinderUseCase
 import com.acilgin.chatgpt_recipe_finder.domain.usecase.GenerateImageUseCase
 import com.acilgin.chatgpt_recipe_finder.domain.usecase.GenerateRecipeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val generateRecipeUseCase: GenerateRecipeUseCase,
-    private val chatUseCase: ChatUseCase,
+    private val recipeFinderUseCase: RecipeFinderUseCase,
     private val imageUseCase: GenerateImageUseCase
 ) : ViewModel() {
 
@@ -61,7 +61,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun generateRecipeFromChat(ingredients: String,type: String,language: String) =viewModelScope.launch {
-        chatUseCase(ingredients = ingredients,type =type,language = language).onEach { result ->
+        recipeFinderUseCase(ingredients = ingredients,type =type,language = language).onEach { result ->
 
             when (result) {
                 is Resource.Success -> {
